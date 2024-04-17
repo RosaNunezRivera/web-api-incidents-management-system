@@ -16,7 +16,7 @@ This project is an Incident Management System API designed to manage incidents, 
 
 ## Installation Instructions
 
-1. 1. Clone the repository to your local machine.
+1. Clone the repository to your local machine.
 2. Navigate to the project directory.
 3. Open the solution file in Visual Studio.
 4. Restore NuGet packages.
