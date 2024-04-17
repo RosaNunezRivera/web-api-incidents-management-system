@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace WebApi_IncidentsManagementSystem.Controllers
 
         //Define mapper
         private readonly IMapper _mapper;
+
 
         //Define constructor
         public IncidentController(IIncidentService incidentService, IMapper mapper)
@@ -41,15 +43,14 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetIncidentById(int id)
         {
             //Getting the Incident by id
-            Incident incident = await _incidentService.GetIncidentByIdService(id);
+            var incident = await _incidentService.GetIncidentByIdService(id);
 
             if (incident == null)
             {
-                return NotFound();
+                return BadRequest("Incident not found");
             }
 
             //Convert Incident object in Dto
-
             IncidentDTO incidentDto = _mapper.Map<IncidentDTO>(incident);
             return Ok(incidentDto);
         }
@@ -58,7 +59,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> AddIncident(IncidentDTO incidentDto)
         {
             var result = await _incidentService.AddIncidentService(incidentDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -70,7 +79,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> UpdateIncident(IncidentDTO incidentDto)
         {
             var result = await _incidentService.UpdateIncidentService(incidentDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>

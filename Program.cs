@@ -18,6 +18,7 @@ namespace WebApi_IncidentsManagementSystem
             // Add services to the container.
 
             builder.Services.AddControllers();
+           
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -30,6 +31,12 @@ namespace WebApi_IncidentsManagementSystem
             // DI for Fluent Validations
             builder.Services.AddScoped<IValidator<Process>, ProcessValidator>();
             builder.Services.AddScoped<IValidator<Department>, DepartmentValidator>();
+            builder.Services.AddScoped<IValidator<GroupProcess>, GroupProcessValidator>();
+            builder.Services.AddScoped<IValidator<RootCause>, RootCauseValidator>();
+            builder.Services.AddScoped<IValidator<Standard>, StandardValidator>();
+            builder.Services.AddScoped<IValidator<Incident>, IncidentValidator>();
+            builder.Services.AddScoped<IValidator<IncidentClassification>, IncidentClassificationValidator>();
+            builder.Services.AddScoped<IValidator<IncidentResolution>, IncidentResolutionValidator>();
 
 
             // Container to entities -Depedency injection
@@ -43,7 +50,7 @@ namespace WebApi_IncidentsManagementSystem
             builder.Services.AddScoped<IProcessService, ProcessService>();
             builder.Services.AddScoped<IProcessRepository, ProcessRepository>();
 
-            //Depedency injection for Process
+            //Depedency injection for Department
             builder.Services.AddScoped<IDepartmentService, DepartmentService>();
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 

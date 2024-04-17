@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,10 +26,10 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDepartment()
+        public async Task<IActionResult> GetDepartments()
         {
             //Creating a list 
-            var listDepartment = await _departmentService.GetDepartmentService();
+            var listDepartment = await _departmentService.GetDepartmentsService();
 
             //Converting a list in format of DTO 
             List<DepartmentDTO> departmentDto = _mapper.Map<List<DepartmentDTO>>(listDepartment);
@@ -41,15 +42,14 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetDepartmentById(int id)
         {
             //Getting the Department by id
-            DepartmentValidator department = await _departmentService.GetDepartmentByIdService(id);
+            var department = await _departmentService.GetDepartmentByIdService(id);
 
             if (department == null)
             {
-                return NotFound();
+                return BadRequest("Department not found");
             }
 
             //Convert Department object in Dto
-
             DepartmentDTO departmentDto = _mapper.Map<DepartmentDTO>(department);
             return Ok(departmentDto);
         }
@@ -58,7 +58,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> AddDepartment(DepartmentDTO departmentDto)
         {
             var result = await _departmentService.AddDepartmentService(departmentDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -70,7 +78,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> UpdateDepartment(DepartmentDTO departmentDto)
         {
             var result = await _departmentService.UpdateDepartmentService(departmentDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>

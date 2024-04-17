@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,15 +42,14 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetStandardById(int id)
         {
             //Getting the Standard by id
-            Standard standard = await _standardService.GetStandardByIdService(id);
+            var standard = await _standardService.GetStandardByIdService(id);
 
             if (standard == null)
             {
-                return NotFound();
+                return BadRequest("Standard not found");
             }
 
             //Convert Standard object in Dto
-
             StandardDTO standardDto = _mapper.Map<StandardDTO>(standard);
             return Ok(standardDto);
         }
@@ -58,7 +58,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> AddStandard(StandardDTO standardDto)
         {
             var result = await _standardService.AddStandardService(standardDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -69,8 +77,17 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateStandard(StandardDTO standardDto)
         {
-            var result = await _standardService.UpdateStandardService(standardDto);
-            return Ok(result);
+           var result = await _standardService.UpdateStandardService(standardDto);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+
         }
 
         /// <summary>

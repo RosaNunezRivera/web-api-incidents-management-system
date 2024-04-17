@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,23 +13,25 @@ namespace WebApi_IncidentsManagementSystem.Controllers
     public class IncidentResolutionController : ControllerBase
     {
         //Declaring a private read-only variable named _IncidenteResolutionService 
-        private readonly IIncidentResolutionService _incidenteResolutionService;
+        private readonly IIncidentResolutionService _incidentResolutionService;
 
         //Define mapper
         private readonly IMapper _mapper;
 
+
         //Define constructor
-        public IncidentResolutionController(IIncidentResolutionService incidenteResolutionService, IMapper mapper)
+        public IncidentResolutionController(IIncidentResolutionService incidentResolutionService, IMapper mapper)
         {
-            _incidenteResolutionService = incidenteResolutionService;
+            _incidentResolutionService = incidentResolutionService;
             _mapper = mapper;
+
         }
 
         [HttpGet]
         public async Task<IActionResult> GetIncidenteResolutions()
         {
             //Creating a list 
-            var listIncidenteResolutions = await _incidenteResolutionService.GetIncidenteResolutionService();
+            var listIncidenteResolutions = await _incidentResolutionService.GetIncidentResolutionService();
 
             //Converting a list in format of DTO 
             List<IncidentResolutionDTO> incidenteResolutionDto = _mapper.Map<List<IncidentResolutionDTO>>(listIncidenteResolutions);
@@ -41,24 +44,31 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetIncidenteResolutionById(int id)
         {
             //Getting the IncidenteResolution by id
-            IncidentResolution incidenteResolution = await _incidenteResolutionService.GetIncidenteResolutionByIdService(id);
+            IncidentResolution incidenteResolution = await _incidentResolutionService.GetIncidentResolutionByIdService(id);
 
             if (incidenteResolution == null)
             {
-                return NotFound();
+                return BadRequest("IncidenteResolution not found");
             }
 
             //Convert IncidenteResolution object in Dto
-
             IncidentResolutionDTO incidenteResolutionDto = _mapper.Map<IncidentResolutionDTO>(incidenteResolution);
             return Ok(incidenteResolutionDto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddIncidenteResolution(IncidentResolutionDTO incidenteResolutionDto)
+        public async Task<IActionResult> AddIncidenteResolution(IncidentResolutionDTO incidentResolutionDto)
         {
-            var result = await _incidenteResolutionService.AddIncidenteResolutionService(incidenteResolutionDto);
-            return Ok(result);
+            var result = await _incidentResolutionService.AddIncidentResolutionService(incidentResolutionDto);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -67,10 +77,19 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         /// <param name="IncidenteResolutionDto"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateIncidenteResolution(IncidentResolutionDTO incidenteResolutionDto)
+        public async Task<IActionResult> UpdateIncidenteResolution(IncidentResolutionDTO incidentResolutionDto)
         {
-            var result = await _incidenteResolutionService.UpdateIncidenteResolutionService(incidenteResolutionDto);
-            return Ok(result);
+            var result = await _incidentResolutionService.AddIncidentResolutionService(incidentResolutionDto);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+
         }
 
         /// <summary>
@@ -82,7 +101,7 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         [Route("{id}")]
         public async Task<IActionResult> DeleteIncidenteResolution(int id)
         {
-            var result = await _incidenteResolutionService.DeleteIncidenteResolutionService(id);
+            var result = await _incidentResolutionService.DeleteIncidentResolutionService(id);
 
             if (result == null)
             {
@@ -90,6 +109,5 @@ namespace WebApi_IncidentsManagementSystem.Controllers
             }
             return Ok(result);
         }
-
     }
 }

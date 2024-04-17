@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace WebApi_IncidentsManagementSystem.Controllers
 
         //Define mapper
         private readonly IMapper _mapper;
+        
 
         //Define constructor
         public GroupprocessController(IGroupProcessService groupProcessService, IMapper mapper) 
@@ -45,11 +47,10 @@ namespace WebApi_IncidentsManagementSystem.Controllers
 
             if (groupProcess == null)
             {
-                return NotFound();
+                return BadRequest("GroupProcess not found");
             }
 
             //Convert GroupProcess object in Dto
-
             GroupProcessDTO groupProcessDto = _mapper.Map<GroupProcessDTO>(groupProcess);
             return Ok(groupProcessDto);
         }
@@ -58,7 +59,16 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> AddGroupProcess(GroupProcessDTO groupProcessDto) 
         {
             var result = await _groupProcessService.AddGroupProcessService(groupProcessDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+
         }
 
         /// <summary>
@@ -67,10 +77,18 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         /// <param name="groupProcessDto"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateGroupProcess(GroupProcessDTO groupProcessDto) 
-        {
+        public async Task<IActionResult> UpdateGroupProcess(GroupProcessDTO groupProcessDto)
+        { 
             var result = await _groupProcessService.UpdateGroupProcessService(groupProcessDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>

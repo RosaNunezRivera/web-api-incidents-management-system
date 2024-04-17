@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,15 +42,14 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetIncidentClassificationById(int id)
         {
             //Getting the IncidentClassification by id
-            IncidentClassification incidentClassification = await _incidentClassificationService.GetIncidentClassificationByIdService(id);
+            var incidentClassification = await _incidentClassificationService.GetIncidentClassificationByIdService(id);
 
             if (incidentClassification == null)
             {
-                return NotFound();
+                return BadRequest("IncidentClassification not found");
             }
 
             //Convert IncidentClassification object in Dto
-
             IncidentClassificationDTO incidentClassificationDto = _mapper.Map<IncidentClassificationDTO>(incidentClassification);
             return Ok(incidentClassificationDto);
         }
@@ -58,7 +58,16 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> AddIncidentClassification(IncidentClassificationDTO incidentClassificationDto)
         {
             var result = await _incidentClassificationService.AddIncidentClassificationService(incidentClassificationDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
+
         }
 
         /// <summary>
@@ -70,7 +79,15 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> UpdateIncidentClassification(IncidentClassificationDTO incidentClassificationDto)
         {
             var result = await _incidentClassificationService.UpdateIncidentClassificationService(incidentClassificationDto);
-            return Ok(result);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>

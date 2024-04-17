@@ -2,6 +2,7 @@
 using BLL;
 using ENTITIES.DTOs;
 using ENTITIES.Entities;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,7 @@ namespace WebApi_IncidentsManagementSystem.Controllers
 
             if (RootCause == null)
             {
-                return NotFound();
+                return BadRequest("RootCause not found");
             }
 
             //Convert RootCause object in Dto
@@ -55,10 +56,18 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRootCause(RootCauseDTO RootCauseDto)
+        public async Task<IActionResult> AddRootCause(RootCauseDTO rootCauseDto)
         {
-            var result = await _rootCauseService.AddRootCauseService(RootCauseDto);
-            return Ok(result);
+            var result = await _rootCauseService.AddRootCauseService(rootCauseDto);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -67,10 +76,18 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         /// <param name="RootCauseDto"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateRootCause(RootCauseDTO RootCauseDto)
+        public async Task<IActionResult> UpdateRootCause(RootCauseDTO rootCauseDto)
         {
-            var result = await _rootCauseService.UpdateRootCauseService(RootCauseDto);
-            return Ok(result);
+           var result = await _rootCauseService.UpdateRootCauseService(rootCauseDto);
+
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>

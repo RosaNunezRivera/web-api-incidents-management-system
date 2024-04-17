@@ -18,15 +18,12 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         //Define private variable to mapper 
         private readonly IMapper _mapper;
 
-        //Creating process validator 
-        private readonly AbstractValidator<Process> _processValidator;
 
         //Define a constructor for the ProcessService class  
-        public ProcessController(IProcessService processService, IMapper mapper, IValidator<Process> processValidator)
+        public ProcessController(IProcessService processService, IMapper mapper)
         {
             _processService = processService;
             _mapper = mapper;
-            _processValidator = (AbstractValidator<Process>)processValidator;
         }
 
         /// <summary>
@@ -55,12 +52,16 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         public async Task<IActionResult> GetProcessById(int id)
         {
             //Storage the list of process by Post ID
-            var listProcesses = await _processService.GetProcessByIdService(id);
+            var process = await _processService.GetProcessByIdService(id);
+
+            if (process == null)
+            {
+                return BadRequest("Process not found");
+            }
 
             //Converting listprocess in format of DTO 
-            List<ProcessDTO> processes = _mapper.Map<List<ProcessDTO>>(listProcesses);
-
-            return Ok(processes);
+            List<ProcessDTO> processDto = _mapper.Map<List<ProcessDTO>>(process);
+            return Ok(processDto);
         }
 
         /// <summary>
@@ -71,20 +72,16 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddProcess(ProcessDTO processDto)
         {
+            var result = await _processService.AddProcessService(processDto);
 
-            Process process = _mapper.Map<Process>(processDto);
-
-            var validationResult = _processValidator.Validate(process);
-
-            if (validationResult.IsValid)
+            if (result.StartsWith("Validation failed:"))
             {
-                await _processService.AddProcessService(processDto);
-                return Ok("New Process has been added successfully");
+                return BadRequest(result);
             }
-
-            //Returning error message 
-            return BadRequest(validationResult.Errors);
-
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
@@ -93,12 +90,18 @@ namespace WebApi_IncidentsManagementSystem.Controllers
         /// <param name="process"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<IActionResult> UpdateProcess(ProcessDTO process)
+        public async Task<IActionResult> UpdateProcess(ProcessDTO processDto)
         {
-            //Getting the result from service 
-            var result = await _processService.UpdateProcessService(process);
+            var result = await _processService.UpdateProcessService(processDto);
 
-            return Ok(result);
+            if (result.StartsWith("Validation failed:"))
+            {
+                return BadRequest(result);
+            }
+            else
+            {
+                return Ok(result);
+            }
         }
 
         /// <summary>
