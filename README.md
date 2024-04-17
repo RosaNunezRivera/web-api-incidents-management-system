@@ -125,8 +125,8 @@ Project Name
 For questions or support, contact [Rosa Nunez](mailto:rosamnunezrivera@gmail.com).
 
 ## Version History
-v1.0 (Release Date: [2024-04-07]) Initial release of the Incident Management System API.
-v1.0 (Release Date: [2024-04-17]) Validations and README.md improvements.
+- v1.0 (Release Date: [2024-04-07]) Initial release of the Incident Management System API.
+- v1.0 (Release Date: [2024-04-17]) Validations and README.md improvements.
 
 ## Code Example
 ```c#
